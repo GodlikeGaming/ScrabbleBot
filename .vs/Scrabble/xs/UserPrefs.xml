@@ -1,0 +1,26 @@
+﻿<Properties StartupConfiguration="{CFBC3653-D818-4EFE-A8E3-34529D8A9152}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Scrabble/calculatePoints.fsx">
+    <Files>
+      <File FileName="Scrabble/Program.fs" Line="69" Column="56" />
+      <File FileName="Scrabble/calculatePoints.fsx" Line="48" Column="11" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="Scrabble" expanded="True">
+            <Node name="Scrabble" expanded="True">
+              <Node name="calculatePoints.fsx" selected="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.ItemProperties.Scrabble PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>

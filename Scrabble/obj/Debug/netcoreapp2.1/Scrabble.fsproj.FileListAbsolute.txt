@@ -1,0 +1,24 @@
+C:/ITU_local/Functional programming/Scrabble/ScrabbleProject/Scrabble/Scrabble/bin/Debug/netcoreapp2.1/Scrabble.deps.json
+C:/ITU_local/Functional programming/Scrabble/ScrabbleProject/Scrabble/Scrabble/bin/Debug/netcoreapp2.1/Scrabble.runtimeconfig.json
+C:/ITU_local/Functional programming/Scrabble/ScrabbleProject/Scrabble/Scrabble/bin/Debug/netcoreapp2.1/Scrabble.runtimeconfig.dev.json
+C:/ITU_local/Functional programming/Scrabble/ScrabbleProject/Scrabble/Scrabble/bin/Debug/netcoreapp2.1/Scrabble.dll
+C:/ITU_local/Functional programming/Scrabble/ScrabbleProject/Scrabble/Scrabble/bin/Debug/netcoreapp2.1/Scrabble.pdb
+C:/ITU_local/Functional programming/Scrabble/ScrabbleProject/Scrabble/Scrabble/bin/Debug/netcoreapp2.1/ScrabbleServer.dll
+C:/ITU_local/Functional programming/Scrabble/ScrabbleProject/Scrabble/Scrabble/bin/Debug/netcoreapp2.1/ScrabbleUtil.dll
+C:/ITU_local/Functional programming/Scrabble/ScrabbleProject/Scrabble/Scrabble/obj/Debug/netcoreapp2.1/Scrabble.fsprojAssemblyReference.cache
+C:/ITU_local/Functional programming/Scrabble/ScrabbleProject/Scrabble/Scrabble/obj/Debug/netcoreapp2.1/Scrabble.AssemblyInfoInputs.cache
+C:/ITU_local/Functional programming/Scrabble/ScrabbleProject/Scrabble/Scrabble/obj/Debug/netcoreapp2.1/Scrabble.AssemblyInfo.fs
+C:/ITU_local/Functional programming/Scrabble/ScrabbleProject/Scrabble/Scrabble/obj/Debug/netcoreapp2.1/Scrabble.fsproj.CopyComplete
+C:/ITU_local/Functional programming/Scrabble/ScrabbleProject/Scrabble/Scrabble/obj/Debug/netcoreapp2.1/Scrabble.dll
+C:/ITU_local/Functional programming/Scrabble/ScrabbleProject/Scrabble/Scrabble/obj/Debug/netcoreapp2.1/Scrabble.pdb
+/Users/Kjaerulff/Desktop/Scrabble/Scrabble/bin/Debug/netcoreapp2.1/Scrabble.deps.json
+/Users/Kjaerulff/Desktop/Scrabble/Scrabble/bin/Debug/netcoreapp2.1/Scrabble.runtimeconfig.json
+/Users/Kjaerulff/Desktop/Scrabble/Scrabble/bin/Debug/netcoreapp2.1/Scrabble.runtimeconfig.dev.json
+/Users/Kjaerulff/Desktop/Scrabble/Scrabble/bin/Debug/netcoreapp2.1/Scrabble.dll
+/Users/Kjaerulff/Desktop/Scrabble/Scrabble/bin/Debug/netcoreapp2.1/Scrabble.pdb
+/Users/Kjaerulff/Desktop/Scrabble/Scrabble/bin/Debug/netcoreapp2.1/ScrabbleServer.dll
+/Users/Kjaerulff/Desktop/Scrabble/Scrabble/bin/Debug/netcoreapp2.1/ScrabbleUtil.dll
+/Users/Kjaerulff/Desktop/Scrabble/Scrabble/obj/Debug/netcoreapp2.1/Scrabble.fsprojAssemblyReference.cache
+/Users/Kjaerulff/Desktop/Scrabble/Scrabble/obj/Debug/netcoreapp2.1/Scrabble.fsproj.CopyComplete
+/Users/Kjaerulff/Desktop/Scrabble/Scrabble/obj/Debug/netcoreapp2.1/Scrabble.dll
+/Users/Kjaerulff/Desktop/Scrabble/Scrabble/obj/Debug/netcoreapp2.1/Scrabble.pdb
