@@ -63,6 +63,13 @@ module State =
     let lettersPlaced st = st.lettersPlaced
     let hand st          = st.hand
 
+let readLines filePath = System.IO.File.ReadLines(filePath)
+
+let empty_dict = Dictionary.empty "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+let dict = List.fold (fun acc x -> Dictionary.insert x acc) empty_dict (Seq.toList (readLines "/Users/Kjaerulff/Desktop/Scrabble/EnglishDictionary.txt"))
+
+
 let recv play st msg =
     match msg with
     | RCM (CMPlaySuccess(ms, points, newPieces)) ->
@@ -78,10 +85,11 @@ let recv play st msg =
         let hand_reduced = List.fold (fun acc x -> MultiSet.removeSingle (fst (snd x)) acc) hand ms
 
         // add new pieces to hand
-        let hand_new = List.fold (fun acc x -> MultiSet.add (fst x) (snd x) acc) hand newPieces
+        let hand_new = List.fold (fun acc x -> MultiSet.add (fst x) (snd x) acc) hand_reduced newPieces
 
         // update state based on lp_new and hand_new
         let st' = State.mkState lp_new hand_new
+
 
         play st'
     | RCM (CMPlayed (pid, ms, points)) ->
@@ -97,15 +105,58 @@ let recv play st msg =
     | RErr err -> printfn "Server Error:\n%A" err; play st
     | RGPE err -> printfn "Gameplay Error:\n%A" err; play st
 
-let playGame send board pieces st =
 
+(*let rec iterateOverList (word : char list) = 
+    let rec aux =  
+        function 
+        | []        -> None
+        | x::xs     ->  match (Dictionary.traverse (fst x) dict) with
+                        | Some dict -> Some (x, dict)
+                        | None      -> aux xs
+    function 
+    | []        -> None
+    | x::xs     -> match (aux (Set.toList x)) with
+                   | Some (x, dict) -> match (Dictionary.checkNode dict) with
+                                       | true  -> Some (fst x::word)
+                                       | false -> iterateOverList (fst x::word) xs
+                   | None   -> None
+
+
+                   *)
+let rec cList x =
+   function
+   | 0u      -> []
+   | count  -> x::(cList x (count-1u))
+
+let playGame send board pieces st =
     let rec aux st =
         Print.printBoard board 8 (State.lettersPlaced st)
         printfn "\n\n"
         Print.printHand pieces (State.hand st)
 
         printfn "Input move (format '(x-coord y-coord piece-key character point-value )*')"
-        let input =  System.Console.ReadLine()
+
+        let hand = State.hand st
+
+        let tiles_in_hand = MultiSet.fold (fun acc x i -> (cList (Map.find x pieces) i) @ acc) [] hand
+
+       
+        let result = Dictionary.findWord dict tiles_in_hand
+
+
+        printf "Found word: %A\n" (List.fold (fun acc x -> fst x :: acc) [] result)
+
+        printf "with points: %A\n" (List.fold (fun acc x -> (snd x) + acc) 0 result)
+
+        let input = 
+            let mutable i = -2
+            List.fold (fun acc x -> i <- i + 1 ;  "0 " + string (i) + " " + string ((int (fst x)) - 64)  + string (fst x) + string(snd x) + " " + acc) "" (List.rev result)
+
+        printf "%A\n" input
+
+        //let input =  System.Console.ReadLine()
+        System.Console.ReadLine() |> ignore
+
         let move = RegEx.parseMove input
 
         send (recv aux st) (SMPlay move)
@@ -120,9 +171,12 @@ let startGame send (msg : Response) =
         let hand' = List.fold (fun acc (v, x) -> MultiSet.add v x acc) MultiSet.empty hand
         playGame send board pieces (State.newState hand')
     | _ -> failwith "No game has been started yet"
-     
+
+
+
 [<EntryPoint>]
 let main argv =
     let send = Comm.connect ()
+
     send (startGame send) (SMStartGame(1u, "My game", "", "My name"))
     0 // return an integer exit code

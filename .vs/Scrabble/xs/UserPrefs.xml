@@ -1,15 +1,22 @@
 ﻿<Properties StartupConfiguration="{CFBC3653-D818-4EFE-A8E3-34529D8A9152}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Scrabble/calculatePoints.fsx">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Scrabble/Program.fs">
     <Files>
-      <File FileName="Scrabble/Program.fs" Line="69" Column="56" />
-      <File FileName="Scrabble/calculatePoints.fsx" Line="48" Column="11" />
+      <File FileName="Scrabble/Program.fs" Line="91" Column="1" />
+      <File FileName="Scrabble/Dictionary.fs" Line="89" Column="27" />
+      <File FileName="Scrabble/Dictionary.fsi" Line="13" Column="65" />
+      <File FileName="Scrabble/calculatePoints.fsx" Line="1" Column="1" />
+      <File FileName="Scrabble/EnglishDictionary.txt" Line="10528" Column="4" />
+      <File FileName="Scrabble/MultiSet.fs" Line="32" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="Scrabble" expanded="True">
             <Node name="Scrabble" expanded="True">
-              <Node name="calculatePoints.fsx" selected="True" />
+              <Node name="Dependencies" expanded="True">
+                <Node name="AssemblyDependencies" expanded="True" />
+              </Node>
+              <Node name="Program.fs" selected="True" />
             </Node>
           </Node>
         </State>
@@ -20,7 +27,11 @@
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="/Users/Kjaerulff/Desktop/Scrabble/Scrabble/Program.fs" relfile="Scrabble/Program.fs" line="88" column="1" />
+      <Breakpoint file="/Users/Kjaerulff/Desktop/Scrabble/Scrabble/Program.fs" relfile="Scrabble/Program.fs" line="78" column="1" />
+      <Breakpoint file="/Users/Kjaerulff/Desktop/Scrabble/Scrabble/Program.fs" relfile="Scrabble/Program.fs" line="91" column="1" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MultiItemStartupConfigurations />
 </Properties>
