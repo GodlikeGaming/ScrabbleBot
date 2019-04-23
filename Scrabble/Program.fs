@@ -138,9 +138,26 @@ let playGame send board pieces st =
 
         let hand = State.hand st
 
+        let lp = State.lettersPlaced st
+
         let tiles_in_hand = MultiSet.fold (fun acc x i -> (cList (Map.find x pieces) i) @ acc) [] hand
 
-       
+        let poss = 
+            let mutable lst = []
+            for k in lp do 
+                if Map.containsKey(fst k.Key, snd k.Key - 1) lp  = false then
+                    // this is a valid tile in the vertical axis
+                    lst <- ("v", k)::lst
+                if Map.containsKey(fst k.Key - 1, snd k.Key) lp = false then
+                    // this is also a valid tile in the horizontal axis.
+                    lst <- ("h", k)::lst
+                else 
+                    // The tile is not valid.
+                    lst <- lst
+            lst
+
+        //Map.fold (fun acc key value -> Map.containsKey (key) )[] lp
+
         let result = Dictionary.findWord dict tiles_in_hand
 
 
