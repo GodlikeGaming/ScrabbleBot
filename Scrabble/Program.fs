@@ -128,6 +128,9 @@ let rec cList x =
    | 0u      -> []
    | count  -> x::(cList x (count-1u))
 
+
+
+
 let playGame send board pieces st =
     let rec aux st =
         Print.printBoard board 8 (State.lettersPlaced st)
@@ -140,34 +143,45 @@ let playGame send board pieces st =
 
         let lp = State.lettersPlaced st
 
-        let tiles_in_hand = MultiSet.fold (fun acc x i -> (cList (Map.find x pieces) i) @ acc) [] hand
+        let tiles_in_hand = MultiSet.fold (fun acc x i -> (cList (x, (Map.find x pieces)) i) @ acc) [] hand
 
-        let poss = 
-            let mutable lst = []
-            for k in lp do 
-                if Map.containsKey(fst k.Key, snd k.Key - 1) lp  = false then
-                    // this is a valid tile in the vertical axis
-                    lst <- ("v", k)::lst
-                if Map.containsKey(fst k.Key - 1, snd k.Key) lp = false then
-                    // this is also a valid tile in the horizontal axis.
-                    lst <- ("h", k)::lst
-                else 
-                    // The tile is not valid.
-                    lst <- lst
-            lst
 
+        let getPos dir pos =
+            let rec aux pos =
+                let t_pos = (fst pos + fst dir, snd pos + snd dir)
+                match pos with
+                | (x, y) when Map.containsKey pos lp  -> (pos, (Map.find pos lp)) :: (aux t_pos)
+                | (x, y)                              -> match board.tiles (x,y) with 
+                                                         | Some tile ->  (pos, (' ', 0)) :: (aux t_pos)
+                                                         | None -> []
+
+            if (Map.containsKey (fst pos - fst dir, snd pos - snd dir) lp) then 
+                []
+            else 
+                aux pos
+
+
+        let vertical = Map.fold (fun acc pos value -> (getPos (0, 1) pos) :: acc) [] lp |> List.filter (fun x -> List.length x > 0)
+
+        let horizontal = Map.fold (fun acc pos value -> (getPos (1, 0) pos) :: acc) [] lp |> List.filter (fun x -> List.length x > 0)
+
+        let comb = vertical @ horizontal
         //Map.fold (fun acc key value -> Map.containsKey (key) )[] lp
+
 
         let result = Dictionary.findWord dict tiles_in_hand
 
+        let first (a, _, _) = a
+        let second (_, b, _) = b
+        let third (_, _, c) = c
 
-        printf "Found word: %A\n" (List.fold (fun acc x -> fst x :: acc) [] result)
+        printf "Found word: %A\n" (List.fold (fun acc x -> second x :: acc) [] result)
 
-        printf "with points: %A\n" (List.fold (fun acc x -> (snd x) + acc) 0 result)
+        printf "with points: %A\n" (List.fold (fun acc x -> (third x) + acc) 0 result)
 
         let input = 
             let mutable i = -2
-            List.fold (fun acc x -> i <- i + 1 ;  "0 " + string (i) + " " + string ((int (fst x)) - 64)  + string (fst x) + string(snd x) + " " + acc) "" (List.rev result)
+            List.fold (fun acc x -> i <- i + 1 ;  "0 " + string (i) + " " + string (first x)  + string (second x) + string(third x) + " " + acc) "" (List.rev result)
 
         printf "%A\n" input
 

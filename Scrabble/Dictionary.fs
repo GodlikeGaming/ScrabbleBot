@@ -80,6 +80,10 @@ module Dictionary
 *)
     let getChildren d = Map.fold(fun acc key value -> (key, value)::acc) [] d
 
+    let first (a, _, _) = a
+    let second (_, b, _) = b
+    let third (_, _, c) = c
+
     let findBest w1 w2 = 
         if (List.length w1 > List.length w2) then
             w1
@@ -87,8 +91,8 @@ module Dictionary
             w2 
 
     let findBest2 w1 w2 = 
-        let w1_score = List.fold (fun acc x -> snd x + acc) 0 w1 
-        let w2_score = List.fold (fun acc x -> snd x + acc) 0 w2
+        let w1_score = List.fold (fun acc x -> third x + acc) 0 w1 
+        let w2_score = List.fold (fun acc x -> third x + acc) 0 w2
         if w1_score > w2_score then
             w1
         else 
@@ -104,20 +108,20 @@ module Dictionary
     let rec remove c = 
         function 
         | []    -> []
-        | x::xs when x = c  -> xs @ []
+        | x::xs when snd x = snd c  -> xs @ []
         | x::xs             -> remove c (xs @ [x])
 
+    
     let traverse set = 
-        let mutable found = (' ', 0)
+        let mutable found =(0u, ' ', 0)
         function
-        | Node (b, d)   when  Set.exists (fun c -> (found <- (c)) ; d.ContainsKey(fst c)) set -> (found, Map.find (fst found) d)
-        | _                                                              -> ((' ', 0), empty "")
+        | Node (b, d)   when  Set.exists (fun c -> (found <- (fst set, fst c, snd c)) ; d.ContainsKey(second found)) (snd set) -> (found, Map.find (second found) d)
+        | _                                                              -> ((0u, ' ', 0), empty "")
 
 
     let findWord root p = 
-        printf "pieces: %A\n" p ;
-        let rec aux word p =
-            let mutable temp = (' ', 0)
+        let rec aux (word: (uint32 * char * int) list) p =
+            let mutable temp = (0u, ' ', 0)
             function 
             | Node (b, d) as node when b -> bestWord (word::(List.fold (fun acc x -> (temp <- fst(traverse x node)) ; (aux (temp::word) (remove x p) (snd (traverse x node))) :: acc ) [] p ))
             | Node (_, d) as node        -> bestWord (List.fold (fun acc x -> (temp <- fst(traverse x node)) ; (aux (temp::word) (remove x p) (snd (traverse x node))) :: acc ) [] p )

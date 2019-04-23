@@ -14,4 +14,4 @@ module Dictionary
 
     val checkNode : Dictionary -> bool
 
-    val findWord : Dictionary -> Set<char * int> list -> (char * int) list
+    val findWord : Dictionary -> (uint32 * Set<char * int>) list -> (uint32 * char * int) list
