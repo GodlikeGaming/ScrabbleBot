@@ -1,9 +1,10 @@
 ﻿open System.IO
 
-open ScrabbleLib
-
 open ScrabbleServer
+open ScrabbleUtil
 open ScrabbleUtil.ServerCommunication
+
+open System.Net.Sockets
 
 module RegEx =
     open System.Text.RegularExpressions
@@ -62,7 +63,7 @@ module State =
 
     let lettersPlaced st = st.lettersPlaced
     let hand st          = st.hand
-
+    
 let readLines filePath = System.IO.File.ReadLines(filePath)
 
 let empty_dict = Dictionary.empty "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
