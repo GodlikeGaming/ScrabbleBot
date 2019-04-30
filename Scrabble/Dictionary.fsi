@@ -1,4 +1,4 @@
-module Dictionary
+(* module Dictionary
 
     type Dictionary
 
@@ -16,4 +16,4 @@ module Dictionary
 
     //val findWord : Dictionary -> (uint32 * Set<char * int>) list -> ('a * (uint32 * char * int)) list -> (uint32 * char * int) list
 
-    val findWord2 : Dictionary -> (uint32 * Set<char * int>) list -> ((int * int) * (uint32 * char * int) option) list list -> Map<(int * int), (char * 'a)> ->  ((int * int) * (uint32 * char * int)) list
+    val findWord2<'a, 'b, 'c, 'd when 'a : equality and 'b : equality and 'c :equality and 'd : equality> : Dictionary -> ('a * 'b) list -> ((int * 'c) * ((int * int) * ('a * char * int) option) list) list -> Map<(int * int), (char * 'd)> ->  ((int * int) * ('a * char * int)) list *)

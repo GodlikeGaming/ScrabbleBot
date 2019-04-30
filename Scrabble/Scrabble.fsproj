@@ -5,6 +5,9 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OtherFlags> --simpleresolution --nocopyfsharpcore --sig:mysig.fsi</OtherFlags>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ScrabbleServer">
       <HintPath>..\ScrabbleServer.dll</HintPath>
@@ -15,11 +18,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="FSharp.Core" Version="4.6.2" />
+    <PackageReference Include="FsPickler" Version="5.2.0" />
+    <PackageReference Include="FsPickler.Json" Version="5.2.0" />
+    <PackageReference Include="FSharp.Quotations.Evaluator" Version="1.1.3" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Update="FSharp.Core" Version="4.6.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Dictionary.fsi" />
+    <None Remove="Dictionary.fsi" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="Dictionary.fs" />
     <Compile Include="MultiSet.fsi" />
     <Compile Include="MultiSet.fs" />
