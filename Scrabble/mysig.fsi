@@ -16,13 +16,16 @@ val getChildren : d:Map<'a,'b> -> ('a * 'b) list when 'a : comparison
 val first : a:'a * 'b * 'c -> 'a
 val second : 'a * b:'b * 'c -> 'b
 val third : 'a * 'b * c:'c -> 'c
-val findBest : w1:'a list -> w2:'a list -> 'a list
+val calculatePoints :
+  lst:('a * Map<'b,(uint32 -> 'c -> int -> int)>) list -> ws:'c -> int
+    when 'b : comparison
 val findBest2 :
-  w1:('a * ('b * 'c * int)) list ->
-    w2:('a * ('b * 'c * int)) list -> ('a * ('b * 'c * int)) list
+  w1:(ScrabbleUtil.coord * ('a * char * int)) list ->
+    w2:(ScrabbleUtil.coord * ('a * char * int)) list ->
+      board:ScrabbleUtil.board -> (ScrabbleUtil.coord * ('a * char * int)) list
 val bestWord :
-  lst:seq<('a * ('b * 'c * int)) list> ->
-    board:'d -> ('a * ('b * 'c * int)) list
+  lst:seq<(ScrabbleUtil.coord * ('a * char * int)) list> ->
+    board:ScrabbleUtil.board -> (ScrabbleUtil.coord * ('a * char * int)) list
 val remove : c:'a -> lst:('a * 'b) list -> ('a * 'b) list when 'a : equality
 val traverse :
   'a * char * 'b -> _arg1:Dictionary -> (('a * char * 'b) * Dictionary) option
@@ -44,16 +47,17 @@ val findWord :
   root:Dictionary ->
     p:('a * Set<char * int>) list ->
       line:((int * int) * ('a * char * int) option) list ->
-        int * int ->
-          lp:Map<(int * int),(char * 'b)> ->
-            board:'c -> ((int * int) * ('a * char * int)) list
-    when 'a : equality
+        int * 'b ->
+          lp:Map<(int * int),(char * 'c)> ->
+            board:ScrabbleUtil.board ->
+              (ScrabbleUtil.coord * ('a * char * int)) list when 'a : equality
 val findWord2 :
   root:Dictionary ->
     p:('a * Set<char * int>) list ->
-      lines:((int * int) * ((int * int) * ('a * char * int) option) list) list ->
-        lp:Map<(int * int),(char * 'b)> ->
-          board:'c -> ((int * int) * ('a * char * int)) list when 'a : equality
+      lines:((int * 'b) * ((int * int) * ('a * char * int) option) list) list ->
+        lp:Map<(int * int),(char * 'c)> ->
+          board:ScrabbleUtil.board ->
+            (ScrabbleUtil.coord * ('a * char * int)) list when 'a : equality
 
 module MultiSet
 type MultiSet<'a when 'a : comparison> =

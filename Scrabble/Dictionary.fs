@@ -84,15 +84,22 @@ module Dictionary
     let second (_, b, _) = b
     let third (_, _, c) = c
 
-    let findBest w1 w2 = 
-        if (List.length w1 > List.length w2) then
-            w1
-        else 
-            w2 
+    let calculatePoints lst ws =
+        let rec aux i =
+            function
+            | []    ->  []
+            | x::xs -> 
+                        let kv = Map.fold (fun acc key value -> (key, (value i ws)) :: acc) [] (snd x)
+                        kv @ (aux (i+1u) xs)
 
-    let findBest2 w1 w2 = 
-        let w1_score = List.fold (fun acc x -> third (snd x) + acc) 0 w1 
-        let w2_score = List.fold (fun acc x -> third (snd x) + acc) 0 w2
+        let functions = aux 0u lst   
+        let sorted = List.sortBy (fun x -> fst x) functions 
+        let sum = List.fold (fun acc x -> acc |> (snd x)) 0 sorted
+        sum
+
+    let findBest2 w1 w2 (board : ScrabbleUtil.board) = 
+        let w1_score = calculatePoints (List.fold (fun acc x -> Option.get (board.tiles (fst x)) :: acc) [] w1) (List.toArray(List.map (fun x -> (second (snd x), third (snd x))) w1))
+        let w2_score = calculatePoints (List.fold (fun acc x -> Option.get (board.tiles (fst x)) :: acc) [] w2) (List.toArray(List.map (fun x ->(second (snd x), third (snd x))) w2))
         if w1_score > w2_score then
             w1
         else 
@@ -101,7 +108,7 @@ module Dictionary
     let bestWord lst board = 
         let mutable best = []
         for entry in lst do 
-            best <- findBest2 entry best 
+            best <- findBest2 entry best board
         best
 
 
@@ -199,8 +206,7 @@ module Dictionary
     let getNodes node (line : 'a list) lst = (List.fold (fun acc x -> (traverse x node)::acc) [] lst) |> List.filter(fun x -> x.IsSome) |> List.map(Option.get) |> List.fold (fun acc x -> (fst line.Head, x)::acc) [] 
 
     let findWord root p (line :'a list) dir lp board = 
-        if fst line.Head = (1, -1) && dir = (0, 1) then
-           ()
+
         let rec aux word p used_piece used_placed_piece (line : 'a list) n =
             //printf "%A\n" (word |> List.rev |> List.map(fun x -> second(snd x))) ;
             let res = (word |> List.map(fun x -> second(snd x)) |> List.fold (fun acc x -> string x+acc) "" )
