@@ -20,12 +20,14 @@ val calculatePoints :
   lst:('a * Map<'b,(uint32 -> 'c -> int -> int)>) list -> ws:'c -> int
     when 'b : comparison
 val findBest2 :
-  w1:(ScrabbleUtil.coord * ('a * char * int)) list ->
-    w2:(ScrabbleUtil.coord * ('a * char * int)) list ->
-      board:ScrabbleUtil.board -> (ScrabbleUtil.coord * ('a * char * int)) list
+  int * (ScrabbleUtil.coord * ('a * char * int)) list ->
+    int * (ScrabbleUtil.coord * ('a * char * int)) list ->
+      board:ScrabbleUtil.board ->
+        int * (ScrabbleUtil.coord * ('a * char * int)) list
 val bestWord :
-  lst:seq<(ScrabbleUtil.coord * ('a * char * int)) list> ->
-    board:ScrabbleUtil.board -> (ScrabbleUtil.coord * ('a * char * int)) list
+  lst:seq<int * (ScrabbleUtil.coord * ('a * char * int)) list> ->
+    board:ScrabbleUtil.board ->
+      int * (ScrabbleUtil.coord * ('a * char * int)) list
 val remove : c:'a -> lst:('a * 'b) list -> ('a * 'b) list when 'a : equality
 val traverse :
   'a * char * 'b -> _arg1:Dictionary -> (('a * char * 'b) * Dictionary) option
@@ -45,19 +47,24 @@ val getNodes :
       lst:('c * char * 'd) list -> ('a * (('c * char * 'd) * Dictionary)) list
 val findWord :
   root:Dictionary ->
-    p:('a * Set<char * int>) list ->
+    all_pieces:('a * Set<char * int>) list ->
       line:((int * int) * ('a * char * int) option) list ->
         int * 'b ->
           lp:Map<(int * int),(char * 'c)> ->
             board:ScrabbleUtil.board ->
-              (ScrabbleUtil.coord * ('a * char * int)) list when 'a : equality
+              wordAgent:MailboxProcessor<int *
+                                         (ScrabbleUtil.coord * ('a * char * int)) list> ->
+                int * (ScrabbleUtil.coord * ('a * char * int)) list
+    when 'a : equality
 val findWord2 :
   root:Dictionary ->
     p:('a * Set<char * int>) list ->
       lines:((int * 'b) * ((int * int) * ('a * char * int) option) list) list ->
         lp:Map<(int * int),(char * 'c)> ->
           board:ScrabbleUtil.board ->
-            (ScrabbleUtil.coord * ('a * char * int)) list when 'a : equality
+            wordAgent:MailboxProcessor<int *
+                                       (ScrabbleUtil.coord * ('a * char * int)) list> ->
+              (ScrabbleUtil.coord * ('a * char * int)) list when 'a : equality
 
 module MultiSet
 type MultiSet<'a when 'a : comparison> =
@@ -105,13 +112,18 @@ end
 module State = begin
   type state =
     {lettersPlaced: Map<ScrabbleUtil.coord,(char * int)>;
-     hand: MultiSet.MultiSet<uint32>;}
+     hand: MultiSet.MultiSet<uint32>;
+     player_queue: List<uint32>;
+     player_id: uint32;}
   val mkState :
     lp:Map<ScrabbleUtil.coord,(char * int)> ->
-      h:MultiSet.MultiSet<uint32> -> state
-  val newState : hand:MultiSet.MultiSet<uint32> -> state
+      h:MultiSet.MultiSet<uint32> -> p:List<uint32> -> p_id:uint32 -> state
+  val newState :
+    hand:MultiSet.MultiSet<uint32> -> (List<uint32> -> uint32 -> state)
   val lettersPlaced : st:state -> Map<ScrabbleUtil.coord,(char * int)>
   val hand : st:state -> MultiSet.MultiSet<uint32>
+  val push_player : queue:'a list -> p_id:'a -> 'a list
+  val pop_player : st:state -> uint32 * uint32 list
 end
 val readLines :
   filePath:string -> System.Collections.Generic.IEnumerable<string>

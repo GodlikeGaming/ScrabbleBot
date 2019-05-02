@@ -97,16 +97,18 @@ module Dictionary
         let sum = List.fold (fun acc x -> acc |> (snd x)) 0 sorted
         sum
 
-    let findBest2 w1 w2 (board : ScrabbleUtil.board) = 
-        let w1_score = calculatePoints (List.fold (fun acc x -> Option.get (board.tiles (fst x)) :: acc) [] w1) (List.toArray(List.map (fun x -> (second (snd x), third (snd x))) w1))
-        let w2_score = calculatePoints (List.fold (fun acc x -> Option.get (board.tiles (fst x)) :: acc) [] w2) (List.toArray(List.map (fun x ->(second (snd x), third (snd x))) w2))
+    let findBest2 w_1 w_2 (board : ScrabbleUtil.board) = 
+        let w1 = snd w_1
+        let w2 = snd w_2
+        let w1_score = calculatePoints (List.fold (fun acc x -> Option.get (board.tiles (fst x)) :: acc) [] w1) (List.toArray(List.map (fun x -> (second (snd x), third (snd x))) w1)) + if fst w_1 = 0 then 50 else 0
+        let w2_score = calculatePoints (List.fold (fun acc x -> Option.get (board.tiles (fst x)) :: acc) [] w2) (List.toArray(List.map (fun x ->(second (snd x), third (snd x))) w2)) + if fst w_2 = 0 then 50 else 0
         if w1_score > w2_score then
-            w1
+            w_1
         else 
-            w2
+            w_2
 
     let bestWord lst board = 
-        let mutable best = []
+        let mutable best = (10, [])
         for entry in lst do 
             best <- findBest2 entry best board
         best
@@ -128,16 +130,6 @@ module Dictionary
         | Node (b, d) when Map.containsKey (second piece) d  -> Some ((first piece, second piece, third piece), Map.find (second piece) d)      
         | _             -> None 
 
-(*     let traverse set  = 
-        function
-        | Node (b, d)   ->      let mutable found = None
-                                for entry in snd set do
-                                    match Map.tryFind (fst entry) d with
-                                    | Some n -> found <- Some ((fst set, fst entry, snd entry), n)
-                                    | None -> ()
-                                found
-                                
-        | _             -> None  *)
 
     let l_first =
         function 
@@ -160,8 +152,6 @@ module Dictionary
 
     //Now check the word by going left right up and down
     let legalSpot lp word dir n_pos c d  = 
-
-        //if List.isEmpty word then true else 
 
         let str listOfChars = System.String (listOfChars |> List.toArray)
 
@@ -205,117 +195,43 @@ module Dictionary
 
     let getNodes node (line : 'a list) lst = (List.fold (fun acc x -> (traverse x node)::acc) [] lst) |> List.filter(fun x -> x.IsSome) |> List.map(Option.get) |> List.fold (fun acc x -> (fst line.Head, x)::acc) [] 
 
-    let findWord root p (line :'a list) dir lp board = 
-
+    let findWord root all_pieces (line :'a list) dir lp board (wordAgent : MailboxProcessor<'b>) = 
         let rec aux word p used_piece used_placed_piece (line : 'a list) n =
-            //printf "%A\n" (word |> List.rev |> List.map(fun x -> second(snd x))) ;
-            let res = (word |> List.map(fun x -> second(snd x)) |> List.fold (fun acc x -> string x+acc) "" )
-
-            
             if line.IsEmpty || List.isEmpty p then 
                 match n with 
-                | Node (b, _) when b && used_piece && used_placed_piece ->  word
-                | _ -> []                                                                   //(aux ((fst x, fst (snd x))::word) p true used_placed_piece line.Tail (snd (snd x))) :: acc
+                | Node (b, _) when b && used_piece && used_placed_piece -> wordAgent.Post((List.length p, word)) ; (List.length p, word)
+                | _ -> (10, [])                                                                   //(aux ((fst x, fst (snd x))::word) p true used_placed_piece line.Tail (snd (snd x))) :: acc
             else  
                 match n, (snd line.Head), used_piece, (used_placed_piece || Map.count lp = 0) with
                 | Node (b, d), Some x, true, true   when b    ->  
                                                             match (Map.tryFind (second x) d), lookup (word_str word) root, legalSpot lp word dir (fst line.Head) (x |> second) root with 
-                                                            | Some node, true, true -> bestWord (word::[(aux ((fst line.Head,  Option.get (snd line.Head))::word) p used_piece true line.Tail node)]) board
+                                                            | Some node, true, true ->  wordAgent.Post((List.length p, word)) ; bestWord ((List.length p, word)::[(aux ((fst line.Head,  Option.get (snd line.Head))::word) p used_piece true line.Tail node)]) board 
                                                             | Some node, _, true    -> (aux ((fst line.Head,  Option.get (snd line.Head))::word) p used_piece true line.Tail node)
-                                                            | _, true, true         -> word
-                                                            | _               -> []
+                                                            | _, true, true         -> wordAgent.Post((List.length p, word)) ; (List.length p, word)
+                                                            | _               -> (10, [])
                                                             
                 | Node (_, d), Some x, _, _             ->  
                                                             match (Map.tryFind (second x) d), legalSpot lp word dir (fst line.Head) (x |> second) root with 
                                                             | Some node, true -> aux ((fst line.Head,  Option.get (snd line.Head))::word) p used_piece true line.Tail node
-                                                            | _               -> []
+                                                            | _               -> (10, [])
 
-                | Node (b, d), None, true, true  when b    ->  //bestWord (word::((getPieces p) |> (getNodes n line) |> List.filter(fun x -> legalSpot lp word dir (fst line.Head) (x |> snd |> fst |> second) root) |> (List.fold (fun acc x -> (aux ((fst x, fst (snd x))::word) (remove (x |> snd |> fst |> first) p) true used_placed_piece line.Tail (snd (snd x))) :: acc) [] )) )
+                | Node (b, d), None, true, true  when b    ->   wordAgent.Post((List.length p, word)) ; //bestWord (word::((getPieces p) |> (getNodes n line) |> List.filter(fun x -> legalSpot lp word dir (fst line.Head) (x |> snd |> fst |> second) root) |> (List.fold (fun acc x -> (aux ((fst x, fst (snd x))::word) (remove (x |> snd |> fst |> first) p) true used_placed_piece line.Tail (snd (snd x))) :: acc) [] )) )
                                                                 let pieces = getPieces p
                                                                 let nodes = getNodes n line pieces
                                                                 let filtered = List.filter(fun x -> legalSpot lp word dir (fst x) (x |> snd |> fst |> second) root) nodes
                                                                 let words = List.fold (fun acc x -> (aux ((fst x, fst (snd x))::word) (remove (x |> snd |> fst |> first) p) true used_placed_piece line.Tail (snd (snd x))) :: acc) [] filtered
-                                                                let w = bestWord (word::words) board
+                                                                let w = bestWord ((List.length p, word)::words) board 
                                                                 w
                 | Node (_, d), None, _, _                  ->  //bestWord ((getPieces p) |> (getNodes n line) |> List.filter(fun x -> legalSpot lp word dir (fst x) (x |> snd |> fst |> second) root) |> (List.fold (fun acc x -> (aux ((fst x, fst (snd x))::word) (remove (x |> snd |> fst |> first) p) true used_placed_piece line.Tail (snd (snd x))) :: acc) [] ))
                                                                 let pieces = getPieces p
                                                                 let nodes = getNodes n line pieces
                                                                 let filtered = List.filter(fun x -> legalSpot lp word dir (fst x) (x |> snd |> fst |> second) root) nodes
                                                                 let words = List.fold (fun acc x -> (aux ((fst x, fst (snd x))::word) (remove (x |> snd |> fst |> first) p) true used_placed_piece line.Tail (snd (snd x))) :: acc) [] filtered
-                                                                let w = bestWord words board
+                                                                let w = bestWord words board 
                                                                 w
-                | _                                     ->  []
-        aux [] p false false line root  
+                | _                                     ->  (10, [])
+        aux [] all_pieces false false line root
     
-(* 
-    let findWord_old root p line dir lp = 
-        let rec aux word p used_piece used_placed_piece (line : 'a list) n =
-            let mutable temp = None
-            if line.IsEmpty then
-                match n with 
-                | Node (b, _) when b && used_piece && used_placed_piece -> word //add more rules here
-                | _                  -> []
-            else      // && (legalSpot lp (second (snd word.Head)) (fst line.Head) root)
-                match n, (snd line.Head), used_piece, (used_placed_piece || Map.count lp = 0), (next_availible 1 line) with 
-                //| _ when not (legalSpot lp (second (snd word.Head)) (fst line.Head) root) -> []
-              
-                
-                | Node (_, d), Some x, _, _, _  -> match Map.tryFind (second x) d  with 
-                                                        | Some leaf -> (aux ((fst line.Head, x)::word) p used_piece true line.Tail leaf  )
-                                                        | None -> []
-                | Node (b, _) as node, None, true, true, true when b ->  
 
-                                                                        let mutable words = []
-                                                                        for entry in p do  
-                                                                            match (traverse entry node), (legalSpot lp word dir (fst line.Head) root line) with
-                                                                                | _, false -> ()
-                                                                                | Some leaf, _ -> words <- (aux ((fst line.Head, fst leaf)::word) (remove entry p) true used_placed_piece line.Tail (snd leaf))::words
-                                                                                | _ -> ()
-                                                                        words <- word::words
-                                                                        bestWord (words)
-                                                                              // bestWord (word::(List.fold (fun acc x -> (temp <- fst(traverse x node)) ; (aux ((fst line.Head, temp)::word) (remove x p) true used_placed_piece line.Tail (snd (traverse x node))) :: acc ) [] p )) // (legalSpot lp (second (snd word.Head)) (fst line.Head) root)
-                //| Node (b, d) as node, None, true when b -> bestWord (word::(List.fold (fun acc x -> (temp <- fst(traverse x node)) ; (aux ((fst line.Head, temp)::word) (remove x p) true line.Tail (snd (traverse x node))) :: acc ) [] p ))
-                    | Node (b, _) as node, None, _, _, _   ->       
-                                                                    let mutable words = []
-                                                                    for entry in p do  
-                                                                        match (traverse entry node), (legalSpot lp word dir (fst line.Head) root line) with
-                                                                          | _, false -> ()
-                                                                          | Some leaf, _ -> words <- (aux ((fst line.Head, fst leaf)::word) (remove entry p) true used_placed_piece line.Tail (snd leaf))::words
-                                                                          | _ -> ()
-                                                                    bestWord words 
-                                                                           //bestWord (List.fold (fun acc x -> (temp <- fst(traverse x node)) ; (aux ((fst line.Head, temp)::word) (remove x p) true used_placed_piece line.Tail (snd (traverse x node))) :: acc ) [] p )
-                | _ -> []
-        aux [] p false false line root   
-     *)
+    let findWord2 root p lines lp board wordAgent = snd (bestWord (List.filter(fun x -> List.length (snd x) > 0) (List.fold(fun acc line -> (findWord root p (snd line) (fst line) lp board wordAgent) :: acc) [] lines)) board )
 
-    // root p line dir lp 
-    let findWord2 root p lines lp board = bestWord (List.filter(fun x -> List.length x > 0) (List.fold(fun acc line -> (findWord root p (snd line) (fst line) lp board) :: acc) [] lines)) board
-
-
-                        (*
-    let rec traverseCheck (word: char list) (words: string list) (pieces: (char * int) list)=
-        function
-        | Node (b, _) when      pieces.Length = 0 && not b                  -> None
-        | Node (b, _) when      pieces.Length = 0 && b                      -> Some (word, words)
-        | Node (b, d)                                                       -> Some (word, words)
-
-        | Node (_, d)       -> Some (word, List.fold (fun acc x -> Option.get (traverseCheck (x::word) words pieces) :: acc) words pieces)  
-        | _                                                              -> None
-        *)
-
-  
-    
-        (*
-    let rec traverse (word: char list) (lst: char list) =
-        function
-        | Node (b, _) when      lst.Length = 0 && not b                  -> None
-        | Node (b, _) when      lst.Length = 0 && b                      -> Some (List.rev word)
-        | Node (b, d) when      contains d lst && b                      -> Some (List.rev word)
-        | Node (_, d) when      contains d lst                           ->  
-                                                                              match (find d lst) with
-                                                                                | (x, Some dict) -> traverse ((Option.get x)::word) (remove (Option.get x) lst) dict
-                                                                                | _              -> printf "Didn't find any of the letters: %A , in node" lst ; None
-
-        | _                                                             -> None
-
-        *)
